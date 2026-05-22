@@ -1,16 +1,18 @@
 :root {
   color-scheme: light;
-  --ink: #17211c;
-  --muted: #64706a;
-  --line: #d8ded8;
-  --paper: #f7f8f3;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #d7dee8;
+  --paper: #f8fafc;
   --panel: #ffffff;
-  --green: #26734d;
-  --teal: #047b83;
-  --blue: #245c9e;
-  --gold: #b6832b;
-  --danger: #9c3f35;
-  --shadow: 0 18px 50px rgba(21, 38, 30, 0.11);
+  --ocean: #0ea5e9;
+  --ocean-dark: #0284c7;
+  --steel: #334155;
+  --green: #15803d;
+  --teal: #0f766e;
+  --gold: #b7791f;
+  --danger: #b42318;
+  --shadow: 0 18px 50px rgba(15, 23, 42, 0.11);
 }
 
 * {
@@ -24,8 +26,8 @@ html {
 body {
   margin: 0;
   background:
-    linear-gradient(135deg, rgba(38, 115, 77, 0.08), transparent 34%),
-    linear-gradient(225deg, rgba(36, 92, 158, 0.08), transparent 32%),
+    linear-gradient(135deg, rgba(14, 165, 233, 0.08), transparent 34%),
+    linear-gradient(225deg, rgba(21, 128, 61, 0.08), transparent 32%),
     var(--paper);
   color: var(--ink);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -45,8 +47,8 @@ a {
   justify-content: space-between;
   gap: 24px;
   padding: 16px clamp(18px, 4vw, 56px);
-  border-bottom: 1px solid rgba(216, 222, 216, 0.8);
-  background: rgba(247, 248, 243, 0.88);
+  border-bottom: 1px solid rgba(215, 222, 232, 0.88);
+  background: rgba(248, 250, 252, 0.9);
   backdrop-filter: blur(18px);
 }
 
@@ -56,16 +58,10 @@ a {
   gap: 12px;
 }
 
-.brand-mark {
-  display: inline-grid;
-  place-items: center;
+.brand-logo {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
-  background: var(--ink);
-  color: white;
-  font-weight: 800;
-  letter-spacing: 0;
+  flex: 0 0 auto;
 }
 
 .brand strong,
@@ -76,6 +72,7 @@ a {
 .brand small {
   color: var(--muted);
   font-size: 12px;
+  font-weight: 650;
 }
 
 nav {
@@ -85,10 +82,10 @@ nav {
 
 nav a {
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 8px 13px;
-  background: rgba(255, 255, 255, 0.64);
-  color: var(--muted);
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--steel);
   font-size: 14px;
   font-weight: 650;
 }
@@ -98,35 +95,85 @@ main {
 }
 
 .hero {
-  min-height: 520px;
+  min-height: 382px;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.78fr);
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
+  padding: 40px 0 30px;
 }
 
 .hero-copy h1 {
-  max-width: 940px;
-  margin: 10px 0 18px;
-  font-size: clamp(42px, 7vw, 92px);
-  line-height: 0.94;
+  max-width: 780px;
+  margin: 9px 0 14px;
+  font-size: clamp(34px, 4.4vw, 58px);
+  line-height: 1.02;
   letter-spacing: 0;
 }
 
 .hero-copy p:not(.eyebrow) {
-  max-width: 700px;
+  max-width: 660px;
   color: var(--muted);
-  font-size: 18px;
-  line-height: 1.65;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .eyebrow {
   margin: 0;
-  color: var(--teal);
+  color: var(--ocean-dark);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.platform-dynamics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 760px;
+  margin-top: 22px;
+}
+
+.dynamic-chip {
+  min-height: 118px;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.dynamic-chip span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dynamic-chip strong {
+  font-size: 18px;
+}
+
+.dynamic-chip small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.dynamic-chip.ocean {
+  border-color: rgba(14, 165, 233, 0.32);
+}
+
+.dynamic-chip.green {
+  border-color: rgba(21, 128, 61, 0.32);
+}
+
+.dynamic-chip.steel {
+  border-color: rgba(51, 65, 85, 0.28);
 }
 
 .hero-grid {
@@ -140,13 +187,13 @@ main {
 .supplier-card {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow);
 }
 
 .hero-grid div {
-  min-height: 154px;
-  padding: 22px;
+  min-height: 132px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -211,7 +258,7 @@ form {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfcf8;
+  background: #f8fbfd;
 }
 
 .mcp-status-row {
@@ -296,7 +343,7 @@ input[type="range"] {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px;
-  background: #fbfcf8;
+  background: #f8fbfd;
 }
 
 .metric strong {
@@ -316,7 +363,7 @@ td small {
   margin: 18px 0 10px;
   border-left: 4px solid var(--green);
   padding-left: 14px;
-  color: #33453b;
+  color: var(--steel);
   font-size: 16px;
   line-height: 1.6;
 }
@@ -334,8 +381,8 @@ td small {
 }
 
 .supplier-card.selected {
-  border-color: rgba(38, 115, 77, 0.42);
-  background: linear-gradient(180deg, rgba(38, 115, 77, 0.08), white 45%);
+  border-color: rgba(14, 165, 233, 0.42);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), white 45%);
 }
 
 .supplier-card h3 {
@@ -351,7 +398,7 @@ td small {
   border-radius: 50%;
   background:
     radial-gradient(circle at center, white 56%, transparent 57%),
-    conic-gradient(var(--green) calc(var(--score) * 1%), #dce5dd 0);
+    conic-gradient(var(--green) calc(var(--score) * 1%), #d8e3dc 0);
   color: var(--green);
   font-size: 20px;
   font-weight: 850;
@@ -394,7 +441,7 @@ dd {
   height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e8ece6;
+  background: #e3e8ef;
 }
 
 .bar-track i {
@@ -420,7 +467,7 @@ dd {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfcf8;
+  background: #f8fbfd;
 }
 
 .checklist strong,
@@ -513,6 +560,7 @@ button {
   }
 
   .metrics,
+  .platform-dynamics,
   .supplier-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -532,6 +580,7 @@ button {
 
   .hero-grid,
   .metrics,
+  .platform-dynamics,
   .supplier-grid,
   .split {
     grid-template-columns: 1fr;

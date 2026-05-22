@@ -1,3 +1,5 @@
+import { platformDynamics } from "./brand.js";
+
 export const destinations = [
   {
     id: "panama-city",
@@ -257,19 +259,10 @@ export const complianceLibrary = [
 ];
 
 export const syncTargets = [
-  {
-    id: "tccg-work",
-    name: "TCCG.work",
-    role: "Project governance, field rollout, security review"
-  },
-  {
-    id: "tolani-lab",
-    name: "Tolani Lab",
-    role: "Device testing, energy model validation, telemetry schema"
-  },
-  {
-    id: "tsg-ops",
-    name: "TSG Operations",
-    role: "Sourcing, freight, customs, supplier follow-up"
-  }
+  ...platformDynamics.map(({ id, name, role, focus }) => ({
+    id,
+    name,
+    role,
+    focus
+  }))
 ];

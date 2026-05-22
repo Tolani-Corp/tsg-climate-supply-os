@@ -32,6 +32,9 @@ test("sync manifest exposes stable schema and required work targets", () => {
 
   assert.equal(manifest.schema, "tsg.climate-supply-os.sync.v1");
   assert.ok(manifest.syncId.includes("retrofit-gateway"));
+  assert.equal(manifest.platform.brand.name, "Tolani Supply Group");
+  assert.equal(manifest.platform.brand.productName, "TSG Climate Supply OS");
+  assert.ok(manifest.platform.dynamics.some((dynamic) => dynamic.id === "tsg-ops"));
   assert.ok(manifest.targets.some((target) => target.id === "tccg-work"));
   assert.ok(manifest.targets.some((target) => target.id === "tolani-lab"));
   assert.ok(manifest.tasks.length >= 4);

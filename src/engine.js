@@ -7,6 +7,7 @@ import {
   suppliers,
   syncTargets
 } from "./data.js";
+import { platformIdentity } from "./brand.js";
 
 export const defaultScenario = {
   productId: "smart-vrf",
@@ -305,6 +306,7 @@ export function createSyncManifest(result) {
     schema: "tsg.climate-supply-os.sync.v1",
     syncId: `tsg-cso-${stableId}`,
     generatedAt: new Date().toISOString(),
+    platform: platformIdentity,
     targets: syncTargets,
     project: {
       name: `${result.product.name} to ${result.destination.name}`,

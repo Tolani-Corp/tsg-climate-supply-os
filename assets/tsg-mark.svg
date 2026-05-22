@@ -1,0 +1,11 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TSG mark">
+  <path d="M24 2L44 13.5V36.5L24 48L4 36.5V13.5L24 2Z" fill="url(#tsg-grad)" stroke="#0284c7" stroke-width="1.5"/>
+  <path d="M14 30L24 16L34 30H28V36H20V30H14Z" fill="white" fill-opacity="0.96"/>
+  <path d="M12 34C16 32 20 36 24 34C28 32 32 36 36 34" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.62"/>
+  <defs>
+    <linearGradient id="tsg-grad" x1="4" y1="2" x2="44" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TSG Climate Supply OS</title>
     <meta name="description" content="China-to-Panama climate supply intelligence for smart HVAC and ESG devices.">
+    <link rel="icon" href="assets/tsg-mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <header class="topbar">
       <a class="brand" href="#">
-        <span class="brand-mark">TSG</span>
+        <img class="brand-logo" src="assets/tsg-mark.svg" alt="" width="44" height="44">
         <span>
           <strong>Climate Supply OS</strong>
-          <small>China to Panama climate procurement</small>
+          <small>TSG Climate Supply Intelligence</small>
         </span>
       </a>
       <nav>
+        <a href="#scenario-form">Scenario</a>
         <a href="#suppliers">Suppliers</a>
-        <a href="#costs">Costs</a>
         <a href="#sync">Sync</a>
       </nav>
     </header>
@@ -26,12 +27,13 @@
     <main>
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">For TSG, TCCG.work, and Tolani Lab</p>
-          <h1>Source efficient cooling and ESG devices with proof, not guesswork.</h1>
+          <p class="eyebrow">Tolani Supply Group | China to Panama</p>
+          <h1>Coordinate climate sourcing, lab validation, and rollout in one operating view.</h1>
           <p>
-            Build a sourcing scenario, compare China suppliers, route through Panama, estimate landed cost,
-            and export a shared execution manifest for lab validation and field rollout.
+            Compare China suppliers, route through Panama, estimate landed cost and ESG impact,
+            then hand off a shared execution manifest to TCCG.work, Tolani Lab, and TSG Operations.
           </p>
+          <div id="platform-dynamics" class="platform-dynamics" aria-label="Platform workstreams"></div>
         </div>
         <div class="hero-grid" aria-label="Scenario summary">
           <div><span>Landed cost</span><strong id="hero-cost">$0</strong></div>
@@ -172,7 +174,7 @@
           <div id="sync" class="panel sync-panel">
             <div class="section-heading">
               <p class="eyebrow">Synchronization</p>
-              <h2>TCCG.work and Tolani Lab handoff</h2>
+              <h2>Platform handoff manifest</h2>
             </div>
             <textarea id="sync-output" spellcheck="false" aria-label="Sync manifest"></textarea>
             <button id="copy-sync" type="button">Copy sync manifest</button>

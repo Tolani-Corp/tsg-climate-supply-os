@@ -1,3 +1,4 @@
+import { brand, platformDynamics } from "./brand.js";
 import { destinations, origins, products, routes } from "./data.js";
 import { calculateScenario, createSyncManifest, defaultScenario, money, percent, round } from "./engine.js";
 import { loadMcpContext, loadMcpSettings, saveMcpSettings } from "./mcp-client.js";
@@ -13,6 +14,7 @@ const mcpBaseUrlInput = document.querySelector("#mcp-base-url");
 const mcpApiKeyInput = document.querySelector("#mcp-api-key");
 const mcpSaveButton = document.querySelector("#save-mcp-settings");
 const mcpStatus = document.querySelector("#mcp-status");
+const platformDynamicsOutput = document.querySelector("#platform-dynamics");
 let renderSequence = 0;
 
 function option(value, label) {
@@ -45,6 +47,16 @@ function readScenario() {
 
 function setText(id, value) {
   document.querySelector(`#${id}`).textContent = value;
+}
+
+function renderPlatformDynamics() {
+  platformDynamicsOutput.innerHTML = platformDynamics.map((dynamic) => `
+    <article class="dynamic-chip ${dynamic.accent}">
+      <span>${dynamic.focus}</span>
+      <strong>${dynamic.name}</strong>
+      <small>${dynamic.role}</small>
+    </article>
+  `).join("");
 }
 
 function metric(label, value, detail) {
@@ -183,6 +195,9 @@ async function render() {
     }));
   }
 }
+
+document.title = brand.productName;
+renderPlatformDynamics();
 
 fillSelect(productSelect, products, (item) => item.name);
 fillSelect(destinationSelect, destinations, (item) => item.name);

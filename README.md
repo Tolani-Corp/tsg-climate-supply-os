@@ -2,6 +2,8 @@
 
 TSG Climate Supply OS is a lightweight planning platform for sourcing smart HVAC systems and ESG-capable devices from China into Panama. It helps operators compare suppliers, estimate landed cost, model energy and carbon impact, and generate a synchronization packet for TCCG.work and Tolani Lab.
 
+The app uses the shared Tolani Supply Group identity: TSG ocean/steel brand colors, the TSG logistics mark, and a platform handoff model that keeps TSG Operations, TCCG.work, and Tolani Lab aligned in every sync manifest.
+
 This first repo is intentionally dependency-free: open `index.html` directly or run the included Node static server.
 
 ## Why this exists
