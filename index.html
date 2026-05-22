@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TSG Climate Supply OS</title>
+    <meta name="description" content="China-to-Panama climate supply intelligence for smart HVAC and ESG devices.">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#">
+        <span class="brand-mark">TSG</span>
+        <span>
+          <strong>Climate Supply OS</strong>
+          <small>China to Panama climate procurement</small>
+        </span>
+      </a>
+      <nav>
+        <a href="#suppliers">Suppliers</a>
+        <a href="#costs">Costs</a>
+        <a href="#sync">Sync</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">For TSG, TCCG.work, and Tolani Lab</p>
+          <h1>Source efficient cooling and ESG devices with proof, not guesswork.</h1>
+          <p>
+            Build a sourcing scenario, compare China suppliers, route through Panama, estimate landed cost,
+            and export a shared execution manifest for lab validation and field rollout.
+          </p>
+        </div>
+        <div class="hero-grid" aria-label="Scenario summary">
+          <div><span>Landed cost</span><strong id="hero-cost">$0</strong></div>
+          <div><span>Avoided carbon</span><strong id="hero-carbon">0 tCO2e</strong></div>
+          <div><span>Supplier</span><strong id="hero-supplier">-</strong></div>
+          <div><span>Procurement window</span><strong id="hero-window">0 days</strong></div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel controls" aria-label="Scenario controls">
+          <div class="section-heading">
+            <p class="eyebrow">Scenario builder</p>
+            <h2>Plan the shipment</h2>
+          </div>
+          <form id="scenario-form">
+            <label>
+              Product family
+              <select id="product" name="productId"></select>
+            </label>
+            <label>
+              Destination
+              <select id="destination" name="destinationId"></select>
+            </label>
+            <label>
+              China origin
+              <select id="origin" name="originId"></select>
+            </label>
+            <label>
+              Route strategy
+              <select id="route" name="routeId"></select>
+            </label>
+            <div class="split">
+              <label>
+                Units
+                <input name="units" type="number" min="1" value="24">
+              </label>
+              <label>
+                Cooling tons
+                <input name="coolingTons" type="number" min="1" value="60">
+              </label>
+            </div>
+            <div class="split">
+              <label>
+                Baseline SEER
+                <input name="baselineSeer" type="number" min="8" value="13">
+              </label>
+              <label>
+                Target SEER
+                <input name="targetSeer" type="number" min="8" value="22">
+              </label>
+            </div>
+            <label>
+              Monthly cooling hours
+              <input name="monthlyCoolingHours" type="number" min="1" max="744" value="260">
+            </label>
+            <label>
+              Smart controls savings
+              <input name="smartControlSavingsRate" type="range" min="0" max="35" value="14">
+            </label>
+            <label>
+              Contingency
+              <input name="contingencyRate" type="range" min="0" max="20" value="6">
+            </label>
+          </form>
+        </aside>
+
+        <section class="results">
+          <div class="panel">
+            <div class="section-heading">
+              <p class="eyebrow">Decision snapshot</p>
+              <h2>What the plan says</h2>
+            </div>
+            <div id="snapshot" class="metrics"></div>
+            <p id="recommendation" class="recommendation"></p>
+            <p id="product-detail" class="muted"></p>
+            <p id="route-notes" class="muted"></p>
+          </div>
+
+          <div class="section-heading wide">
+            <p class="eyebrow">Supplier intelligence</p>
+            <h2>Ranked vendor options</h2>
+          </div>
+          <div id="suppliers" class="supplier-grid"></div>
+
+          <div id="costs" class="panel">
+            <div class="section-heading">
+              <p class="eyebrow">Landed cost</p>
+              <h2>Cost stack</h2>
+            </div>
+            <div id="cost-stack" class="cost-stack"></div>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <p class="eyebrow">Execution readiness</p>
+              <h2>Compliance, QA, and lab tasks</h2>
+            </div>
+            <ul id="checklist" class="checklist"></ul>
+          </div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <p class="eyebrow">Bill of materials</p>
+              <h2>Procurement packet</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>HS</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody id="bom"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="sync" class="panel sync-panel">
+            <div class="section-heading">
+              <p class="eyebrow">Synchronization</p>
+              <h2>TCCG.work and Tolani Lab handoff</h2>
+            </div>
+            <textarea id="sync-output" spellcheck="false" aria-label="Sync manifest"></textarea>
+            <button id="copy-sync" type="button">Copy sync manifest</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>

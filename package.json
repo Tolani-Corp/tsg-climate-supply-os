@@ -1,0 +1,21 @@
+{
+  "name": "tsg-climate-supply-os",
+  "version": "0.1.0",
+  "description": "Climate supply intelligence for sourcing smart HVAC and ESG devices through Panama.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/server.mjs",
+    "start": "node scripts/server.mjs",
+    "test": "node --test"
+  },
+  "keywords": [
+    "supply-chain",
+    "hvac",
+    "esg",
+    "panama",
+    "china",
+    "climate-tech"
+  ],
+  "author": "Tolani Supply Group",
+  "license": "MIT"
+}
