@@ -23,6 +23,8 @@ export const defaultScenario = {
   contingencyRate: 0.06
 };
 
+const EXPECTED_MCP_SIGNALS = ["tariff", "compliance", "route", "knowledge"];
+
 export function clamp(value, min, max) {
   return Math.min(Math.max(Number(value), min), max);
 }
@@ -46,6 +48,55 @@ export function percent(value) {
 
 function byId(list, id, fallbackId) {
   return list.find((item) => item.id === id) || list.find((item) => item.id === fallbackId) || list[0];
+}
+
+function parsePercentRate(value) {
+  if (typeof value === "number") return value > 1 ? value / 100 : value;
+  if (typeof value !== "string") return null;
+  const match = value.match(/([\d.]+)%/);
+  return match ? Number(match[1]) / 100 : null;
+}
+
+function normalizeMcpContext(context = {}) {
+  const presentSignals = EXPECTED_MCP_SIGNALS.filter((key) => Boolean(context[key]));
+  const fallbackReasons = [...(context.fallbackReasons || [])];
+  let dataSource = "static-fallback";
+
+  if (context.status === "live" && presentSignals.length === EXPECTED_MCP_SIGNALS.length) {
+    dataSource = "mcp-live";
+  } else if (presentSignals.length > 0 || context.status === "partial") {
+    dataSource = "mcp-partial";
+    for (const key of EXPECTED_MCP_SIGNALS) {
+      if (!context[key]) fallbackReasons.push(`Missing MCP ${key} data`);
+    }
+  } else if (!fallbackReasons.length) {
+    fallbackReasons.push("No MCP context provided");
+  }
+
+  return {
+    ...context,
+    dataSource,
+    fallbackReasons: [...new Set(fallbackReasons)],
+    dataSourceLastUpdated:
+      context.metadata?.dataLastUpdated ||
+      context.health?.dataLastUpdated ||
+      null,
+    mcpHealth: context.health || {
+      status: context.status === "offline" ? "offline" : "not-configured"
+    }
+  };
+}
+
+function resolveTariffRate(product, source) {
+  const hsHeading = product.hsCode.split(".")[0];
+  const tariff = source.tariff?.results?.find((item) => hsHeading.startsWith(item.hsCode) || item.hsCode.startsWith(hsHeading));
+  const duty = tariff?.duties?.PA;
+  const rate = parsePercentRate(duty);
+  return rate === null ? null : rate;
+}
+
+function resolveMcpRoute(source) {
+  return source.route?.recommendation || source.route?.routes?.[0] || null;
 }
 
 function scoreSupplier(supplier, product, units) {
@@ -103,13 +154,17 @@ function calculateEnergyImpact(input, destination, product) {
   };
 }
 
-export function calculateScenario(overrides = {}) {
+export function calculateScenario(overrides = {}, mcpContext = {}) {
   const input = { ...defaultScenario, ...overrides };
+  const source = normalizeMcpContext(overrides.mcpContext || mcpContext);
   const product = byId(products, input.productId, defaultScenario.productId);
   const destination = byId(destinations, input.destinationId, defaultScenario.destinationId);
   const origin = byId(origins, input.originId, defaultScenario.originId);
   const route = byId(routes, input.routeId, defaultScenario.routeId);
   const units = Math.round(clamp(input.units, 1, 100000));
+  const mcpDutyRate = resolveTariffRate(product, source);
+  const dutyRate = mcpDutyRate ?? product.importDutyPa;
+  const mcpRoute = resolveMcpRoute(source);
 
   const supplierOptions = suppliers
     .map((supplier) => scoreSupplier(supplier, product, units))
@@ -120,10 +175,11 @@ export function calculateScenario(overrides = {}) {
   const goodsCost = recommendedSupplier.quotedUnitCost * units;
   const totalCbm = product.cbm * units;
   const totalWeightKg = product.weightKg * units;
-  const freight = route.baseFreight + totalCbm * route.cbmRate + origin.exportDocFee;
+  const mcpFreight = Number.isFinite(mcpRoute?.estimatedCost) ? Number(mcpRoute.estimatedCost) : null;
+  const freight = (mcpFreight ?? (route.baseFreight + totalCbm * route.cbmRate)) + origin.exportDocFee;
   const insurance = goodsCost * 0.009;
   const cif = goodsCost + freight + insurance;
-  const duty = cif * product.importDutyPa;
+  const duty = cif * dutyRate;
   const customsBuffer = cif * destination.customsBufferRate;
   const ftzHandling = cif * destination.ftzHandlingRate;
   const inspection = Math.max(850, goodsCost * clamp(input.inspectionRate, 0, 0.2) + origin.qualityLeadDays * 45);
@@ -138,13 +194,27 @@ export function calculateScenario(overrides = {}) {
       ? "Medium"
       : "High";
 
-  const timelineDays = route.daysMax + recommendedSupplier.leadTimeDays + origin.qualityLeadDays + 5;
+  const routeDaysMax = Number.isFinite(mcpRoute?.totalTransitDays?.max)
+    ? Number(mcpRoute.totalTransitDays.max)
+    : route.daysMax;
+  const timelineDays = routeDaysMax + recommendedSupplier.leadTimeDays + origin.qualityLeadDays + 5;
 
   const checklist = complianceLibrary.map((item, index) => ({
     ...item,
     status: index < 2 ? "ready" : "needed",
     dueInDays: Math.max(3, timelineDays - (index + 1) * 4)
   }));
+
+  if (source.compliance?.compliance?.requiredDocuments?.length) {
+    checklist.push({
+      id: "mcp-required-documents",
+      label: `Attach MCP-required documents: ${source.compliance.compliance.requiredDocuments.slice(0, 4).join(", ")}`,
+      owner: "TSG customs",
+      evidence: "MCP compliance_check output",
+      status: "needed",
+      dueInDays: Math.max(3, timelineDays - 10)
+    });
+  }
 
   const bom = [
     {
@@ -198,7 +268,18 @@ export function calculateScenario(overrides = {}) {
     impact: energyImpact,
     checklist,
     bom,
-    recommendation: buildRecommendation(recommendedSupplier, product, route, riskLevel)
+    recommendation: buildRecommendation(recommendedSupplier, product, route, riskLevel),
+    dataSource: source.dataSource,
+    dataSourceLastUpdated: source.dataSourceLastUpdated,
+    mcpHealth: source.mcpHealth,
+    fallbackReasons: source.fallbackReasons,
+    mcpInsights: {
+      tariffDutyRate: round(dutyRate, 4),
+      tariffDutySource: mcpDutyRate === null ? "static-product-default" : "mcp-tariff_lookup",
+      routeSource: mcpRoute ? "mcp-route_optimizer" : "static-route-default",
+      complianceRiskFlags: source.compliance?.compliance?.riskFlags || [],
+      knowledgeResults: source.knowledge?.results || []
+    }
   };
 }
 
@@ -241,6 +322,10 @@ export function createSyncManifest(result) {
     landedCost: result.cost,
     logistics: result.logistics,
     impact: result.impact,
+    dataSource: result.dataSource,
+    dataSourceLastUpdated: result.dataSourceLastUpdated,
+    mcpHealth: result.mcpHealth,
+    fallbackReasons: result.fallbackReasons,
     billOfMaterials: result.bom,
     tasks: result.checklist.map((item) => ({
       id: item.id,

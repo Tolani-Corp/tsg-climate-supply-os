@@ -1,5 +1,6 @@
 import { destinations, origins, products, routes } from "./data.js";
 import { calculateScenario, createSyncManifest, defaultScenario, money, percent, round } from "./engine.js";
+import { loadMcpContext, loadMcpSettings, saveMcpSettings } from "./mcp-client.js";
 
 const form = document.querySelector("#scenario-form");
 const productSelect = document.querySelector("#product");
@@ -8,6 +9,11 @@ const originSelect = document.querySelector("#origin");
 const routeSelect = document.querySelector("#route");
 const syncButton = document.querySelector("#copy-sync");
 const syncOutput = document.querySelector("#sync-output");
+const mcpBaseUrlInput = document.querySelector("#mcp-base-url");
+const mcpApiKeyInput = document.querySelector("#mcp-api-key");
+const mcpSaveButton = document.querySelector("#save-mcp-settings");
+const mcpStatus = document.querySelector("#mcp-status");
+let renderSequence = 0;
 
 function option(value, label) {
   const item = document.createElement("option");
@@ -118,8 +124,19 @@ function renderBom(result) {
   `).join("");
 }
 
-function render() {
-  const result = calculateScenario(readScenario());
+function statusLabel(result) {
+  if (result.dataSource === "mcp-live") return "Live MCP";
+  if (result.dataSource === "mcp-partial") return "Partial MCP";
+  return "Offline fallback";
+}
+
+function setStatus(result) {
+  mcpStatus.textContent = statusLabel(result);
+  mcpStatus.dataset.state = result.dataSource;
+  mcpStatus.title = result.fallbackReasons.length ? result.fallbackReasons.join(" / ") : "China MCP data is active";
+}
+
+function renderResult(result) {
   const manifest = createSyncManifest(result);
 
   setText("hero-cost", money(result.cost.landedCost));
@@ -131,7 +148,8 @@ function render() {
     metric("Landed cost per unit", money(result.cost.landedCostPerUnit), `${result.units} units via ${result.route.mode}`),
     metric("Annual energy savings", money(result.impact.annualEnergySavings), `${result.impact.avoidedKwh.toLocaleString()} kWh avoided`),
     metric("Efficiency gain", percent(result.impact.efficiencyGain), `${result.input.baselineSeer} to ${result.input.targetSeer} SEER equivalent`),
-    metric("Freight footprint", `${result.logistics.freightCarbonTons} tCO2e`, `${result.logistics.totalCbm} CBM / ${result.logistics.totalWeightKg.toLocaleString()} kg`)
+    metric("Freight footprint", `${result.logistics.freightCarbonTons} tCO2e`, `${result.logistics.totalCbm} CBM / ${result.logistics.totalWeightKg.toLocaleString()} kg`),
+    metric("Data source", statusLabel(result), result.dataSourceLastUpdated || result.fallbackReasons[0] || "Current session")
   ].join("");
 
   setText("recommendation", result.recommendation);
@@ -142,8 +160,28 @@ function render() {
   renderCostStack(result);
   renderChecklist(result);
   renderBom(result);
+  setStatus(result);
 
   syncOutput.value = JSON.stringify(manifest, null, 2);
+}
+
+async function render() {
+  const sequence = ++renderSequence;
+  const scenario = readScenario();
+  const fallbackResult = calculateScenario(scenario);
+  renderResult(fallbackResult);
+
+  try {
+    const mcpContext = await loadMcpContext(scenario);
+    if (sequence !== renderSequence) return;
+    renderResult(calculateScenario(scenario, mcpContext));
+  } catch (error) {
+    if (sequence !== renderSequence) return;
+    renderResult(calculateScenario(scenario, {
+      status: "offline",
+      fallbackReasons: [error instanceof Error ? error.message : String(error)]
+    }));
+  }
 }
 
 fillSelect(productSelect, products, (item) => item.name);
@@ -156,6 +194,10 @@ destinationSelect.value = defaultScenario.destinationId;
 originSelect.value = defaultScenario.originId;
 routeSelect.value = defaultScenario.routeId;
 
+const settings = loadMcpSettings();
+mcpBaseUrlInput.value = settings.baseUrl;
+mcpApiKeyInput.value = settings.apiKey;
+
 form.addEventListener("input", render);
 form.addEventListener("change", render);
 syncButton.addEventListener("click", async () => {
@@ -167,6 +209,14 @@ syncButton.addEventListener("click", async () => {
   } catch {
     document.execCommand("copy");
   }
+});
+
+mcpSaveButton.addEventListener("click", () => {
+  saveMcpSettings({
+    baseUrl: mcpBaseUrlInput.value,
+    apiKey: mcpApiKeyInput.value
+  });
+  render();
 });
 
 render();

@@ -47,6 +47,21 @@
             <p class="eyebrow">Scenario builder</p>
             <h2>Plan the shipment</h2>
           </div>
+          <div class="mcp-panel" aria-label="China MCP connection">
+            <div class="mcp-status-row">
+              <span>China MCP</span>
+              <strong id="mcp-status" data-state="static-fallback">Offline fallback</strong>
+            </div>
+            <label>
+              API base URL
+              <input id="mcp-base-url" type="url" autocomplete="off" placeholder="http://localhost:3001">
+            </label>
+            <label>
+              API key
+              <input id="mcp-api-key" type="password" autocomplete="off" placeholder="dev-key-local">
+            </label>
+            <button id="save-mcp-settings" type="button">Save MCP settings</button>
+          </div>
           <form id="scenario-form">
             <label>
               Product family

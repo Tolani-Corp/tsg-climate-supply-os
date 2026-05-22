@@ -204,6 +204,47 @@ form {
   gap: 14px;
 }
 
+.mcp-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.mcp-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mcp-status-row span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#mcp-status {
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: var(--danger);
+  color: white;
+  font-size: 12px;
+}
+
+#mcp-status[data-state="mcp-live"] {
+  background: var(--green);
+}
+
+#mcp-status[data-state="mcp-partial"] {
+  background: var(--gold);
+}
+
 label {
   display: grid;
   gap: 7px;
