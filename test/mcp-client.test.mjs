@@ -16,7 +16,16 @@ test("MCP settings round-trip through browser storage", () => {
   const loaded = loadMcpSettings(storage);
 
   assert.equal(saved.baseUrl, "http://localhost:3001");
+  assert.equal(saved.mode, "direct");
   assert.equal(loaded.apiKey, "abc");
+});
+
+test("MCP settings default to local proxy without browser API key", () => {
+  const loaded = loadMcpSettings(storageStub());
+
+  assert.equal(loaded.baseUrl, "/api/mcp");
+  assert.equal(loaded.apiKey, "");
+  assert.equal(loaded.mode, "proxy");
 });
 
 test("MCP context returns offline fallback when health fails", async () => {
@@ -67,6 +76,32 @@ test("MCP context collects live tool results", async () => {
     assert.equal(context.tariff.results[0].hsCode, "8415");
     assert.equal(context.route.recommendation.estimatedCost, 3000);
     assert.equal(context.knowledge.results[0].title, "Panama climate device evidence");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("MCP context can call the same-origin proxy without Authorization", async () => {
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, options = {}) => {
+    requests.push({ url: String(url), authorization: options.headers?.Authorization });
+    if (String(url).endsWith("/health")) {
+      return Response.json({ status: "healthy" });
+    }
+    const body = JSON.parse(options.body);
+    return Response.json({ ok: true, result: { ok: body.name }, metadata: {} });
+  };
+
+  try {
+    const context = await loadMcpContext(
+      { productId: "smart-vrf", originId: "shenzhen", destinationId: "panama-city" },
+      { baseUrl: "/api/mcp", apiKey: "", mode: "proxy" }
+    );
+
+    assert.equal(context.status, "live");
+    assert.ok(requests.some((request) => request.url === "/api/mcp/tools/call"));
+    assert.ok(requests.every((request) => request.authorization === undefined));
   } finally {
     globalThis.fetch = originalFetch;
   }

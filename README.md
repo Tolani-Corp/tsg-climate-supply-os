@@ -28,6 +28,16 @@ Then open `http://localhost:4173`.
 
 You can also open `index.html` in a browser without running a server.
 
+For live China MCP enrichment, start `TSG-China-Logistics-MCP` on port `3001` and run this app server with:
+
+```bash
+$env:CHINA_MCP_BASE_URL="http://localhost:3001"
+$env:CHINA_MCP_API_KEY="dev-key-local"
+npm run dev
+```
+
+The browser calls the local `/api/mcp` proxy by default, so the MCP API key stays server-side. Direct browser-to-MCP mode is still available by entering the MCP URL and API key in the app settings for private local testing.
+
 ## Repository layout
 
 ```text

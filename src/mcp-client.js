@@ -1,8 +1,9 @@
 import { products } from "./data.js";
 
 export const defaultMcpSettings = {
-  baseUrl: "http://localhost:3001",
-  apiKey: "dev-key-local"
+  baseUrl: "/api/mcp",
+  apiKey: "",
+  mode: "proxy"
 };
 
 const STORAGE_KEY = "tsg-climate-supply-os.mcp";
@@ -33,12 +34,18 @@ export function loadMcpSettings(storage = globalThis.localStorage) {
 }
 
 export function saveMcpSettings(settings, storage = globalThis.localStorage) {
+  const baseUrl = trimTrailingSlash(settings.baseUrl || defaultMcpSettings.baseUrl);
   const clean = {
-    baseUrl: trimTrailingSlash(settings.baseUrl || defaultMcpSettings.baseUrl),
-    apiKey: settings.apiKey || ""
+    baseUrl,
+    apiKey: settings.apiKey || "",
+    mode: settings.mode || (baseUrl.startsWith("/") ? "proxy" : "direct")
   };
   storage?.setItem(STORAGE_KEY, JSON.stringify(clean));
   return clean;
+}
+
+function isProxyMode(settings) {
+  return settings.mode === "proxy" || settings.baseUrl.startsWith("/");
 }
 
 async function fetchJson(url, options = {}) {
@@ -58,10 +65,14 @@ async function fetchJson(url, options = {}) {
 
 async function callTool(settings, name, args) {
   const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${settings.apiKey}`
+    "Content-Type": "application/json"
   };
-  const body = await fetchJson(`${settings.baseUrl}/api/tools/call`, {
+  if (!isProxyMode(settings) && settings.apiKey) {
+    headers.Authorization = `Bearer ${settings.apiKey}`;
+  }
+
+  const toolPath = isProxyMode(settings) ? "/tools/call" : "/api/tools/call";
+  const body = await fetchJson(`${settings.baseUrl}${toolPath}`, {
     method: "POST",
     headers,
     body: JSON.stringify({ name, arguments: args })
@@ -77,7 +88,8 @@ function hsHeading(productId) {
 export async function loadMcpContext(scenario, settings = loadMcpSettings()) {
   const cleanSettings = {
     ...settings,
-    baseUrl: trimTrailingSlash(settings.baseUrl || defaultMcpSettings.baseUrl)
+    baseUrl: trimTrailingSlash(settings.baseUrl || defaultMcpSettings.baseUrl),
+    mode: settings.mode || ((settings.baseUrl || defaultMcpSettings.baseUrl).startsWith("/") ? "proxy" : "direct")
   };
 
   const fallbackReasons = [];
@@ -93,7 +105,7 @@ export async function loadMcpContext(scenario, settings = loadMcpSettings()) {
     };
   }
 
-  if (!cleanSettings.apiKey) {
+  if (!isProxyMode(cleanSettings) && !cleanSettings.apiKey) {
     return {
       status: "offline",
       health,
