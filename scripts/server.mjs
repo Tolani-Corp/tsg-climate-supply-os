@@ -14,8 +14,10 @@ const contentTypes = {
 };
 
 function resolvePath(urlPath) {
-  const cleanPath = normalize(decodeURIComponent(urlPath.split("?")[0])).replace(/^(\.\.[/\\])+/, "");
-  const filePath = resolve(join(root, cleanPath === "/" ? "index.html" : cleanPath));
+  const rawPath = decodeURIComponent(urlPath.split("?")[0]);
+  const relativePath = rawPath === "/" ? "index.html" : rawPath.replace(/^[/\\]+/, "");
+  const cleanPath = normalize(relativePath).replace(/^(\.\.[/\\])+/, "");
+  const filePath = resolve(join(root, cleanPath));
   if (!filePath.startsWith(root)) return null;
   if (existsSync(filePath) && statSync(filePath).isFile()) return filePath;
   return null;
